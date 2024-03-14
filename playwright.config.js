@@ -1,5 +1,5 @@
 // @ts-check
-const { devices } = require("@playwright/test");
+const { devices, chromium } = require("@playwright/test");
 
 /**
  * Read environment variables from file.
@@ -52,26 +52,12 @@ const config = {
   /* Configure projects for major browsers */
   projects: [
     {
-      name: "chrome@latest:Windows 10@browserstack",
-      use: {
-        browserName: "chromium",
-        channel: "chrome",
-      },
-    },
-    {
-      name: "playwright-webkit@latest:OSX Ventura@browserstack",
-      use: {
-        browserName: "chromium",
-        channel: "chrome",
-      },
-    },
-    {
       name: "chrome@Samsung Galaxy S22:13@browserstack-mobile",
       use: {
-        baseURL: "https://www.bstackdemo.com/",
         browserName: "chromium",
-        channel: "chrome",
-      },
+        isMobile:true,
+        channel: "chrome"
+      }
     },
   ],
 

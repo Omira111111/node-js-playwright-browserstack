@@ -5,8 +5,9 @@
   "main": "index.js",
   "scripts": {
     "sample-local-test": "BROWSERSTACK_LOCAL=true npx playwright test tests/local_test.js",
-    "sample-test": "npx playwright test tests/sample_test.js",
-    "mobile-test": "npx playwright test tests/sample_test.js --project='chrome@Samsung Galaxy S22:13@browserstack-mobile'"
+    "bing-test": "npx playwright test tests/bing-tests.js",
+    "mobile-test": "npx playwright test tests/bing-tests.js",
+    "update-baseline": "node.exe  helpers/updateBaseline.js"
   },
   "keywords": [],
   "author": "",
@@ -16,5 +17,10 @@
     "browserstack-local": "^1.5.1",
     "playwright": "1.39.0",
     "prettier": "2.8.8"
+  },
+  "dependencies": {
+    "mz": "^2.7.0",
+    "request": "^2.88.2",
+    "resemblejs": "^5.0.0"
   }
 }

@@ -1,6 +1,9 @@
 const base = require("@playwright/test");
 const cp = require("child_process");
 const { _android } = require("playwright");
+const fsPromises = require('fs/promises');
+const fs = require('fs');
+
 const clientPlaywrightVersion = cp
   .execSync("npx playwright --version")
   .toString()
@@ -18,9 +21,9 @@ const caps = {
   realMobile: "true",
   name: "My android playwright test",
   build: "playwright-build-1",
-  "browserstack.username": process.env.BROWSERSTACK_USERNAME || "<USERNAME>",
+  "browserstack.username": process.env.BROWSERSTACK_USERNAME || "wholepage_C1mDBH",
   "browserstack.accessKey":
-    process.env.BROWSERSTACK_ACCESS_KEY || "<ACCESS_KEY>",
+    process.env.BROWSERSTACK_ACCESS_KEY || "K1NowV3Rez2spJ2eexCM",
   "browserstack.local": process.env.BROWSERSTACK_LOCAL || false,
 };
 
@@ -28,7 +31,7 @@ exports.bsLocal = new BrowserStackLocal.Local();
 
 // replace YOUR_ACCESS_KEY with your key. You can also set an environment variable - "BROWSERSTACK_ACCESS_KEY".
 exports.BS_LOCAL_ARGS = {
-  key: process.env.BROWSERSTACK_ACCESS_KEY || "ACCESSKEY",
+  key: process.env.BROWSERSTACK_ACCESS_KEY || "K1NowV3Rez2spJ2eexCM",
 };
 
 // Patching the capabilities dynamically according to the project name.
@@ -44,9 +47,11 @@ const patchMobileCaps = (name, title) => {
   caps.osVersion = osVersion ? osVersion : "12.0";
   caps.name = title;
   caps.realMobile = "true";
+
 };
 
 const patchCaps = (name, title) => {
+  console.log(name);
   let combination = name.split(/@browserstack/)[0];
   let [browerCaps, osCaps] = combination.split(/:/);
   let [browser, browser_version] = browerCaps.split(/@/);
@@ -58,6 +63,7 @@ const patchCaps = (name, title) => {
   caps.os = os ? os : "osx";
   caps.os_version = os_version ? os_version : "catalina";
   caps.name = title;
+
 };
 
 const isHash = (entity) =>
@@ -134,20 +140,41 @@ exports.test = base.test.extend({
 
   afterEach: [
     async ({ page }, use, testInfo) => {
+
+
       await use();
       if (testInfo.status == "failed") {
         await page
           .context()
           .tracing.stop({ path: `${testInfo.outputDir}/trace.zip` });
-        await page.screenshot({ path: `${testInfo.outputDir}/screenshot.png` });
-        await testInfo.attach("screenshot", {
-          path: `${testInfo.outputDir}/screenshot.png`,
-          contentType: "image/png",
-        });
-        await testInfo.attach("trace", {
-          path: `${testInfo.outputDir}/trace.zip`,
-          contentType: "application/zip",
-        });
+        // await page.screenshot({ path: `diff/${testInfo.title}.png` });
+        // await testInfo.attach("screenshot", {
+        //   path: `${testInfo.outputDir}/screenshot.png`,
+        //   contentType: "image/png",
+        // });
+        //   await testInfo.attach("trace", {
+        //     path: `${testInfo.outputDir}/trace.zip`,
+        //     contentType: "application/zip",
+        //   });
+      }
+      else {
+        var name = testInfo.project.name;
+        var deviceName = "";
+        if (name.includes("browserstack")) {
+          let combination = name.split(/@browserstack/)[0];
+          let [browerCaps, osCaps] = combination.split(/:/);
+          let [browser, device] = browerCaps.split(/@/);
+          deviceName = device.replace(/\s/g, "");
+        }
+        else {
+          deviceName = testInfo.project.name;
+        }
+        var imageName = `${testInfo.title}-${deviceName}`;
+
+        const diffPath = `diff/${imageName}.png`;
+        if ((await fs.existsSync(diffPath))) {
+          await fs.promises.unlink(diffPath);
+        }
       }
     },
     { auto: true },
